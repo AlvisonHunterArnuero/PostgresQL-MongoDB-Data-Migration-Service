@@ -9,6 +9,12 @@ from utils import is_promo_day, unique_id, print_table
 # Import schemas
 from schemas import order_schema, order_items_schema
 
+# Import PostgresQL queries
+from pg_queries import pg_queries
+
+# Import all table headers
+import tbl_headers
+
 # Load environment variable values
 PG_DBNAME: Any = config('PG_DBNAME')
 PG_USER: Any = config('PG_USER')
@@ -37,64 +43,31 @@ except psycopg2.OperationalError as e:
     print(f"Error connecting to PostgresQL: {e}")
 
 # ----- PostgresQL SQL procedures  -----------
-
-# Define All Table Headers lists
-clients_header = ["Id", "Name", "Address", "Promo Day"]
-products_header = ["Id", "Name", "Barcode", "Brand", "Unit Price", "Tax Rate"]
-orders_header = ["Id", "Order Date", "Client Id", "Latitude", "Longitude", "Status"]
-order_items_header = ["Id", "Product Id", "Quantity"]
-popular_brand_header = ["uId", "Order Date", "Client Id", "Latitude", "Longitude", "Status", "Popular Brand"]
-order_highest_item_header = ["Id", "Order Date", "Client Id", "Latitude", "Longitude", "Status", "Id", "Product Id",
-                             "Quantity", "UId", "Name", "Barcode", "Brand", "Unit Price", "Tax Rate"]
-
-# Define a dictionary to store SQL queries for better readability and easier editing.
-# Each key represents a specific query, with the value being the corresponding SQL string.
-
-pg_queries = {
-    "clients": "SELECT * FROM clients",
-    "products": "SELECT * FROM products",
-    "orders": "SELECT * FROM orders",
-    "order_items": "SELECT * FROM order_items",
-    "order_highest_item": """
-        SELECT * FROM orders 
-        JOIN order_items ON orders.uid = order_items.order_uid 
-        JOIN products ON products.uid = order_items.product_uid
-    """,
-    "popular_brand": """
-        SELECT *, (
-            SELECT brand FROM order_items 
-            JOIN products ON order_items.product_uid = products.uid 
-            AND order_items.order_uid = orders.uid 
-            ORDER BY order_items.quantity DESC LIMIT 1
-        ) AS popular_brand FROM orders
-    """,
-}
-
 # SQL queries to extract data from PostgresQL DB
 try:
     pg_cur.execute(pg_queries["clients"])
     clients: Any = pg_cur.fetchall()
-    print_table("Clients Table", clients, clients_header)
+    print_table("Clients Table", clients, tbl_headers.clients_header)
 
     pg_cur.execute(pg_queries["products"])
     products: Any = pg_cur.fetchall()
-    print_table("Products Table", products, products_header)
+    print_table("Products Table", products, tbl_headers.products_header)
 
     pg_cur.execute(pg_queries["orders"])
     orders: Any = pg_cur.fetchall()
-    print_table("Orders Table", orders, orders_header)
+    print_table("Orders Table", orders, tbl_headers.orders_header)
 
     pg_cur.execute(pg_queries["order_items"])
     order_items: Any = pg_cur.fetchall()
-    print_table("Order Items Table", order_items, order_items_header)
+    print_table("Order Items Table", order_items, tbl_headers.order_items_header)
 
     pg_cur.execute(pg_queries["order_highest_item"])
     order_highest_item: Any = pg_cur.fetchall()
-    print_table("Product Info Joined from Product Table", order_highest_item, order_highest_item_header)
+    print_table("Product Info Joined from Product Table", order_highest_item, tbl_headers.order_highest_item_header)
 
     pg_cur.execute(pg_queries["popular_brand"])
     popular_brand: Any = pg_cur.fetchall()
-    print_table("Most Popular Brand Table", popular_brand, popular_brand_header)
+    print_table("Most Popular Brand Table", popular_brand, tbl_headers.popular_brand_header)
 
 except psycopg2.Error as e:
     print("Error While processing this Query: ", e.pgerror)
