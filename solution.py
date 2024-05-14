@@ -15,6 +15,9 @@ from pg_queries import pg_queries
 # Import all table headers
 import tbl_headers
 
+# Import all print_table function captions
+from tbl_caption import tbl_caption_titles as tbl_t
+
 # Load environment variable values
 PG_DBNAME: Any = config('PG_DBNAME')
 PG_USER: Any = config('PG_USER')
@@ -47,27 +50,27 @@ except psycopg2.OperationalError as e:
 try:
     pg_cur.execute(pg_queries["clients"])
     clients: Any = pg_cur.fetchall()
-    print_table("Clients Table", clients, tbl_headers.clients_header)
+    print_table(tbl_t['clients'], clients, tbl_headers.clients_header)
 
     pg_cur.execute(pg_queries["products"])
     products: Any = pg_cur.fetchall()
-    print_table("Products Table", products, tbl_headers.products_header)
+    print_table(tbl_t['products'], products, tbl_headers.products_header)
 
     pg_cur.execute(pg_queries["orders"])
     orders: Any = pg_cur.fetchall()
-    print_table("Orders Table", orders, tbl_headers.orders_header)
+    print_table(tbl_t['orders'], orders, tbl_headers.orders_header)
 
     pg_cur.execute(pg_queries["order_items"])
     order_items: Any = pg_cur.fetchall()
-    print_table("Order Items Table", order_items, tbl_headers.order_items_header)
+    print_table(tbl_t['order_items'], order_items, tbl_headers.order_items_header)
 
     pg_cur.execute(pg_queries["order_highest_item"])
     order_highest_item: Any = pg_cur.fetchall()
-    print_table("Product Info Joined from Product Table", order_highest_item, tbl_headers.order_highest_item_header)
+    print_table(tbl_t['order_highest_item'], order_highest_item, tbl_headers.order_highest_item_header)
 
     pg_cur.execute(pg_queries["popular_brand"])
     popular_brand: Any = pg_cur.fetchall()
-    print_table("Most Popular Brand Table", popular_brand, tbl_headers.popular_brand_header)
+    print_table(tbl_t['popular_brand'], popular_brand, tbl_headers.popular_brand_header)
 
 except psycopg2.Error as e:
     print("Error While processing this Query: ", e.pgerror)
