@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import List, Any, Dict
 from tabulate import tabulate  # type: ignore
 from datetime import datetime
 import uuid
